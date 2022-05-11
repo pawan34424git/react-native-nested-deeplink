@@ -1,9 +1,15 @@
 import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
+import {createDrawerNavigator} from '@react-navigation/drawer';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+const Tab = createBottomTabNavigator();
+
 import Home from './src/Home';
 import Post from './src/Post';
+import {Text, View} from 'react-native';
 const Stack = createStackNavigator();
+const Drawer = createDrawerNavigator();
 
 const posts = [
   {
@@ -48,11 +54,19 @@ const posts = [
 
 const config = {
   screens: {
-    Post: {
-      path: 'post/:post',
-      parse: {
-        post: post =>
-          (post && posts.find(p => p.id === Number(post))) || posts[3],
+    MyTab: {
+      screens: {
+        Home: {
+          screens: {
+            Post: {
+              path: 'post/:post',
+              parse: {
+                post: post =>
+                  (post && posts.find(p => p.id === Number(post))) || posts[3],
+              },
+            },
+          },
+        },
       },
     },
   },
@@ -63,13 +77,41 @@ const linking = {
   config,
 };
 
+function Tab1() {
+  return (
+    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+      <Text>Tab1!</Text>
+    </View>
+  );
+}
+
+const HomeStack = () => {
+  return (
+    <Stack.Navigator initialRouteName={'Profile'}>
+      <Stack.Screen name="Profile" component={Home} />
+      <Stack.Screen name="Post" component={Post} />
+    </Stack.Navigator>
+  );
+};
+
+const BottomTabNavigator = () => {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}>
+      <Tab.Screen name="Dashboard" component={Tab1} />
+      <Tab.Screen name="Home" component={HomeStack} />
+    </Tab.Navigator>
+  );
+};
+
 const App = () => {
   return (
     <NavigationContainer linking={linking}>
-      <Stack.Navigator initialRouteName={'Home'}>
-        <Stack.Screen name="Home" component={Home} />
-        <Stack.Screen name="Post" component={Post} />
-      </Stack.Navigator>
+      <Drawer.Navigator>
+        <Drawer.Screen name="MyTab" component={BottomTabNavigator} />
+      </Drawer.Navigator>
     </NavigationContainer>
   );
 };
